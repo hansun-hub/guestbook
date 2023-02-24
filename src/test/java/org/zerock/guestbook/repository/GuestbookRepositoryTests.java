@@ -1,10 +1,17 @@
 package org.zerock.guestbook.repository;
 
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.zerock.guestbook.entity.Guestbook;
+import org.zerock.guestbook.entity.QGuestbook;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -40,5 +47,27 @@ public class GuestbookRepositoryTests {
 
             guestbookRepository.save(guestbook);
         }
+    }
+
+    @Test
+    public void testQuery1(){
+        PageRequest pageable = PageRequest.of(0,10, Sort.by("gno").descending());
+
+        QGuestbook qGuestbook = QGuestbook.guestbook; //1
+
+        String keyword="1";
+
+        BooleanBuilder builder = new BooleanBuilder(); //2
+
+        BooleanExpression expression = qGuestbook.title.contains(keyword); //3
+
+        builder.and(expression); //4
+
+        Page<Guestbook> result = guestbookRepository.findAll((Predicate) builder, (org.springframework.data.domain.Pageable) pageable); //5
+
+        result.stream().forEach(guestbook -> {
+            System.out.println(guestbook);
+        });
+
     }
 }
